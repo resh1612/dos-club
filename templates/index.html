@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PantryMate – Smart Pantry Expiry Tracker</title>
+  <meta name="description" content="Track your pantry items, monitor expiry dates, and reduce food waste with PantryMate." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+<!-- ══════════════════  SIDEBAR  ══════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🥦</div>
+    <div class="logo-text">
+      <span class="logo-title">PantryMate</span>
+      <span class="logo-sub">Smart Expiry Tracker</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="#" class="nav-item active" id="nav-dashboard" onclick="showView('dashboard')">
+      <span class="nav-icon">📊</span>
+      <span>Dashboard</span>
+    </a>
+    <a href="#" class="nav-item" id="nav-pantry" onclick="showView('pantry')">
+      <span class="nav-icon">🧺</span>
+      <span>My Pantry</span>
+    </a>
+    <a href="#" class="nav-item" id="nav-expiring" onclick="showView('expiring')">
+      <span class="nav-icon">⏰</span>
+      <span>Expiring Soon</span>
+      <span class="badge" id="expiring-badge">0</span>
+    </a>
+    <a href="#" class="nav-item" id="nav-expired" onclick="showView('expired')">
+      <span class="nav-icon">🚫</span>
+      <span>Expired</span>
+      <span class="badge badge-danger" id="expired-badge">0</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="btn-add-sidebar" id="btn-open-modal-sidebar" onclick="openAddModal()">
+      <span>＋</span> Add Item
+    </button>
+  </div>
+</aside>
+
+<!-- ══════════════════  MAIN CONTENT  ══════════════════ -->
+<main class="main-content" id="main-content">
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Toggle sidebar">☰</button>
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="topbar-actions">
+      <a class="topbar-signin" href="/signin">Sign in</a>
+      <button class="btn-primary" id="btn-open-modal-top" onclick="openAddModal()">＋ Add Item</button>
+    </div>
+  </header>
+
+  <!-- ── DASHBOARD VIEW ── -->
+  <section class="view active" id="view-dashboard">
+    <div class="section-header">
+      <h1>Dashboard Overview</h1>
+      <p class="subtitle">Your pantry at a glance</p>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card stat-total" id="stat-total">
+        <div class="stat-icon">🧺</div>
+        <div class="stat-info">
+          <div class="stat-value" id="stat-val-total">–</div>
+          <div class="stat-label">Total Items</div>
+        </div>
+      </div>
+      <div class="stat-card stat-fresh" id="stat-fresh">
+        <div class="stat-icon">✅</div>
+        <div class="stat-info">
+          <div class="stat-value" id="stat-val-fresh">–</div>
+          <div class="stat-label">Fresh</div>
+        </div>
+      </div>
+      <div class="stat-card stat-expiring" id="stat-expiring">
+        <div class="stat-icon">⚠️</div>
+        <div class="stat-info">
+          <div class="stat-value" id="stat-val-expiring">–</div>
+          <div class="stat-label">Expiring Soon</div>
+        </div>
+      </div>
+      <div class="stat-card stat-today" id="stat-today">
+        <div class="stat-icon">📅</div>
+        <div class="stat-info">
+          <div class="stat-value" id="stat-val-today">–</div>
+          <div class="stat-label">Expires Today</div>
+        </div>
+      </div>
+      <div class="stat-card stat-expired" id="stat-expired-card">
+        <div class="stat-icon">🚫</div>
+        <div class="stat-info">
+          <div class="stat-value" id="stat-val-expired">–</div>
+          <div class="stat-label">Expired</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent items on dashboard -->
+    <div class="dashboard-section">
+      <div class="ds-header">
+        <h2>Items Requiring Attention</h2>
+        <a href="#" class="link-view-all" onclick="showView('pantry')">View All →</a>
+      </div>
+      <div class="items-grid" id="dashboard-attention-grid">
+        <div class="empty-state">
+          <div class="empty-icon">🎉</div>
+          <p>All items are fresh!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PANTRY VIEW ── -->
+  <section class="view" id="view-pantry">
+    <div class="section-header">
+      <h1>My Pantry</h1>
+      <p class="subtitle">All pantry items</p>
+    </div>
+
+    <!-- Search & Filter bar -->
+    <div class="filter-bar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Search items…" oninput="handleSearch()" />
+        <button class="clear-search" id="clear-search" onclick="clearSearch()" style="display:none">✕</button>
+      </div>
+      <div class="filter-group">
+        <select id="filter-category" onchange="loadItems()">
+          <option value="all">All Categories</option>
+          <option value="Dairy">🥛 Dairy</option>
+          <option value="Meat &amp; Seafood">🥩 Meat &amp; Seafood</option>
+          <option value="Fruits">🍎 Fruits</option>
+          <option value="Vegetables">🥦 Vegetables</option>
+          <option value="Grains &amp; Bread">🍞 Grains &amp; Bread</option>
+          <option value="Beverages">🥤 Beverages</option>
+          <option value="Snacks">🍿 Snacks</option>
+          <option value="Condiments">🧂 Condiments</option>
+          <option value="Frozen">🧊 Frozen</option>
+          <option value="Canned Goods">🥫 Canned Goods</option>
+          <option value="Spices &amp; Herbs">🌿 Spices &amp; Herbs</option>
+          <option value="Bakery">🥐 Bakery</option>
+          <option value="Other">📦 Other</option>
+        </select>
+        <select id="filter-status" onchange="loadItems()">
+          <option value="all">All Statuses</option>
+          <option value="fresh">✅ Fresh</option>
+          <option value="expiring_soon">⚠️ Expiring Soon</option>
+          <option value="expires_today">📅 Expires Today</option>
+          <option value="expired">🚫 Expired</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Items grid -->
+    <div class="items-grid" id="pantry-grid">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading items…</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EXPIRING SOON VIEW ── -->
+  <section class="view" id="view-expiring">
+    <div class="section-header">
+      <h1>Expiring Soon</h1>
+      <p class="subtitle">Items expiring within the next 7 days</p>
+    </div>
+    <div class="items-grid" id="expiring-grid">
+      <div class="loading-state"><div class="spinner"></div><p>Loading…</p></div>
+    </div>
+  </section>
+
+  <!-- ── EXPIRED VIEW ── -->
+  <section class="view" id="view-expired">
+    <div class="section-header">
+      <h1>Expired Items</h1>
+      <p class="subtitle">These items have passed their expiry date</p>
+    </div>
+    <div class="items-grid" id="expired-grid">
+      <div class="loading-state"><div class="spinner"></div><p>Loading…</p></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ══════════════════  ADD / EDIT MODAL  ══════════════════ -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOnOverlay(event)">
+  <div class="modal" id="item-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-header">
+      <h2 id="modal-title">Add New Item</h2>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close modal">✕</button>
+    </div>
+    <form id="item-form" onsubmit="submitItemForm(event)" novalidate>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label for="f-item-name">Item Name <span class="required">*</span></label>
+          <input type="text" id="f-item-name" placeholder="e.g. Whole Milk" maxlength="120" required />
+          <span class="field-error" id="err-item-name"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="f-category">Category</label>
+          <select id="f-category">
+            <option value="Dairy">🥛 Dairy</option>
+            <option value="Meat &amp; Seafood">🥩 Meat &amp; Seafood</option>
+            <option value="Fruits">🍎 Fruits</option>
+            <option value="Vegetables">🥦 Vegetables</option>
+            <option value="Grains &amp; Bread">🍞 Grains &amp; Bread</option>
+            <option value="Beverages">🥤 Beverages</option>
+            <option value="Snacks">🍿 Snacks</option>
+            <option value="Condiments">🧂 Condiments</option>
+            <option value="Frozen">🧊 Frozen</option>
+            <option value="Canned Goods">🥫 Canned Goods</option>
+            <option value="Spices &amp; Herbs">🌿 Spices &amp; Herbs</option>
+            <option value="Bakery">🥐 Bakery</option>
+            <option value="Other">📦 Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="f-quantity">Quantity</label>
+          <div class="input-row">
+            <input type="number" id="f-quantity" value="1" min="0.01" step="any" style="flex:1" />
+            <select id="f-unit" style="flex:1">
+              <option value="pcs">pcs</option>
+              <option value="kg">kg</option>
+              <option value="g">g</option>
+              <option value="lbs">lbs</option>
+              <option value="oz">oz</option>
+              <option value="L">L</option>
+              <option value="mL">mL</option>
+              <option value="cups">cups</option>
+              <option value="tbsp">tbsp</option>
+              <option value="tsp">tsp</option>
+              <option value="dozen">dozen</option>
+              <option value="pack">pack</option>
+              <option value="bottle">bottle</option>
+              <option value="can">can</option>
+              <option value="box">box</option>
+            </select>
+          </div>
+          <span class="field-error" id="err-quantity"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="f-purchase-date">Purchase Date</label>
+          <input type="date" id="f-purchase-date" />
+        </div>
+
+        <div class="form-group">
+          <label for="f-expiry-date">Expiry Date <span class="required">*</span></label>
+          <input type="date" id="f-expiry-date" required />
+          <span class="field-error" id="err-expiry-date"></span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="btn-primary" id="form-submit-btn">Add Item</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════  CONFIRM DIALOG  ══════════════════ -->
+<div class="modal-overlay" id="confirm-overlay" onclick="cancelConfirm()">
+  <div class="modal confirm-modal" onclick="event.stopPropagation()" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h2 id="confirm-title">Confirm Action</h2>
+    </div>
+    <div class="confirm-body">
+      <p id="confirm-message">Are you sure?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="cancelConfirm()">Cancel</button>
+      <button class="btn-danger" id="confirm-ok-btn" onclick="executeConfirm()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════  TOAST  ══════════════════ -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="/static/script.js"></script>
+</body>
+</html>

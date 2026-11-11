@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in - PantryMate</title>
+  <meta name="description" content="Sign in to manage your PantryMate pantry." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body class="signin-page">
+  <main class="signin-shell">
+    <section class="signin-visual" aria-label="PantryMate introduction">
+      <a class="signin-brand" href="/" aria-label="PantryMate home">
+        <span class="signin-brand-icon">🥦</span>
+        <span>PantryMate</span>
+      </a>
+
+      <div class="signin-visual-copy">
+        <span class="eyebrow">A fresher way to plan</span>
+        <h1>Make every ingredient count.</h1>
+        <p>Keep your pantry organized, stay ahead of expiry dates, and make less food go to waste.</p>
+      </div>
+
+      <div class="signin-visual-footer">
+        <span class="fresh-dot"></span>
+        <span>Helping you keep your kitchen fresh</span>
+      </div>
+    </section>
+
+    <section class="signin-panel">
+      <div class="signin-card">
+        <div class="signin-heading">
+          <span class="signin-mobile-icon">🥦</span>
+          <span class="eyebrow">Welcome back</span>
+          <h2>Sign in to PantryMate</h2>
+          <p>Enter your details to continue to your pantry.</p>
+        </div>
+
+        <form class="signin-form" id="signin-form" novalidate>
+          <div class="signin-field">
+            <label for="signin-email">Email address</label>
+            <input id="signin-email" name="email" type="email" autocomplete="email"
+                   placeholder="you@example.com" required />
+            <span class="signin-error" id="email-error" role="alert"></span>
+          </div>
+
+          <div class="signin-field">
+            <div class="signin-label-row">
+              <label for="signin-password">Password</label>
+              <a href="#" class="signin-muted-link" id="forgot-password">Forgot password?</a>
+            </div>
+            <div class="password-input">
+              <input id="signin-password" name="password" type="password"
+                     autocomplete="current-password" placeholder="Enter your password" required />
+              <button type="button" class="password-toggle" id="password-toggle"
+                      aria-label="Show password" aria-pressed="false">Show</button>
+            </div>
+            <span class="signin-error" id="password-error" role="alert"></span>
+          </div>
+
+          <label class="remember-me">
+            <input type="checkbox" name="remember" />
+            <span class="custom-checkbox" aria-hidden="true"></span>
+            <span>Remember me</span>
+          </label>
+
+          <button class="signin-submit" type="submit">Sign in <span aria-hidden="true">→</span></button>
+          <p class="signin-form-message" id="signin-message" role="status"></p>
+        </form>
+
+        <p class="signin-signup">New to PantryMate? <a href="#" id="create-account">Create an account</a></p>
+        <a class="back-to-app" href="/">← Continue without signing in</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('signin-form');
+    const email = document.getElementById('signin-email');
+    const password = document.getElementById('signin-password');
+    const message = document.getElementById('signin-message');
+    const emailError = document.getElementById('email-error');
+    const passwordError = document.getElementById('password-error');
+    const toggle = document.getElementById('password-toggle');
+
+    toggle.addEventListener('click', () => {
+      const isPassword = password.type === 'password';
+      password.type = isPassword ? 'text' : 'password';
+      toggle.textContent = isPassword ? 'Hide' : 'Show';
+      toggle.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+      toggle.setAttribute('aria-pressed', String(isPassword));
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      emailError.textContent = '';
+      passwordError.textContent = '';
+      message.textContent = '';
+      email.classList.remove('invalid');
+      password.classList.remove('invalid');
+
+      let valid = true;
+      if (!email.value.trim() || !email.validity.valid) {
+        emailError.textContent = 'Enter a valid email address.';
+        email.classList.add('invalid');
+        valid = false;
+      }
+      if (password.value.length < 1) {
+        passwordError.textContent = 'Enter your password.';
+        password.classList.add('invalid');
+        valid = false;
+      }
+      if (!valid) return;
+
+      message.textContent = 'Sign-in service is coming soon. Continue to the pantry for now.';
+      message.classList.add('visible');
+    });
+
+    document.getElementById('forgot-password').addEventListener('click', (event) => {
+      event.preventDefault();
+      message.textContent = 'Password recovery will be available soon.';
+      message.classList.add('visible');
+    });
+
+    document.getElementById('create-account').addEventListener('click', (event) => {
+      event.preventDefault();
+      message.textContent = 'Account creation will be available soon.';
+      message.classList.add('visible');
+    });
+  </script>
+</body>
+</html>
